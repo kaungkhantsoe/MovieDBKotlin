@@ -5,6 +5,7 @@ import com.kks.codingtest.repositries.MainRepository
 import io.reactivex.disposables.CompositeDisposable
 import timber.log.Timber
 import javax.inject.Inject
+import com.kks.codingtest.data.models.*
 
 /**
  * Created by kaungkhantsoe on 1/4/21.
@@ -15,7 +16,7 @@ class MainViewModel @Inject constructor( val mainRepository: MainRepository) : V
 
     private val disposable by lazy { CompositeDisposable() }
 
-    var page = 1
+    var page = 0
 
     fun getData(page: Int) {
         this.page = page

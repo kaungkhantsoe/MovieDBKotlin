@@ -1,5 +1,6 @@
 package com.kks.codingtest.ui.main
 
+import android.content.res.Configuration
 import android.os.Bundle
 import android.view.View
 import android.widget.Toast
@@ -16,6 +17,7 @@ import com.kks.codingtest.data.models.Result
 import com.kks.codingtest.ui.detail.DetailActivity
 import com.kks.codingtest.util.SmartScrollListener
 import kotlinx.android.synthetic.main.activity_main.*
+import timber.log.Timber
 import javax.inject.Inject
 
 /**
@@ -53,7 +55,10 @@ class MainActivity :
 
         observeData()
 
-        viewModel.getData(1)
+        if (viewModel.page == 0) {
+            viewModel.getData(1)
+        }
+
 
     }
 
@@ -73,6 +78,7 @@ class MainActivity :
                 is DataState.Success<List<Result>> -> {
                     displayProgressBar(false)
                     swipeRefresh.isRefreshing = false
+
                     for (model in dataState.data)
                         adapter.add(model)
                 }
