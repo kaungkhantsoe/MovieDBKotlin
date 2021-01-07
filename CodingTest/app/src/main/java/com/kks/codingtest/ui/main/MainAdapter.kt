@@ -40,9 +40,7 @@ class MainAdapter(
         parent: ViewGroup?,
         viewType: Int
     ): RecyclerView.ViewHolder {
-        val view: View = LayoutInflater.from(parent?.getContext())
-            .inflate(R.layout.item_dummy, parent, false)
-        return HeaderViewHolder(view)
+        return dummyHeader(parent?.context)
     }
 
     override fun onBindCustomHeaderViewHolder(holder: RecyclerView.ViewHolder?, position: Int) {

@@ -11,10 +11,12 @@ import android.widget.RelativeLayout
 import androidx.annotation.AnimRes
 import androidx.annotation.IdRes
 import androidx.annotation.LayoutRes
+import androidx.annotation.NonNull
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.GridLayoutManager.SpanSizeLookup
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.kks.codingtest.R
 
 /**
  * Created by kaungkhantsoe on 1/4/21.
@@ -38,45 +40,60 @@ abstract class BaseAdapter :
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
-        return if (viewType == VIEW_LOADING) {
-            ProgressHolder(prepareLoadingView(parent.context))
-        } else if (viewType == VIEW_RETRY) {
-            val retryFooter = itemsList[itemsList.size - 1] as RetryFooter
-            val view = LayoutInflater.from(parent.context)
-                .inflate(retryFooter.retryLayoutId, parent, false)
-            RetryHolder(view, retryFooter.retryActionTriggerViewId)
-        } else if (viewType == VIEW_HEADER) {
-            onCreateCustomHeaderViewHolder(parent, viewType)
-        } else if (viewType == VIEW_EMPTY) {
-            val customView = itemsList[itemsList.size - 1] as EmptyView
-            val view = LayoutInflater.from(parent.context)
-                .inflate(customView.customLayoutId, parent, false)
-            EmptyViewHolder(view)
-        } else if (viewType == VIEW_LIST_END) {
-            val customView = itemsList[itemsList.size - 1] as ListEndView
-            val view = LayoutInflater.from(parent.context)
-                .inflate(customView.customLayoutId, parent, false)
-            ListEndHolder(view)
-        } else {
-            onCreateCustomViewHolder(parent, viewType)
+        return when (viewType) {
+            VIEW_LOADING -> {
+                ProgressHolder(prepareLoadingView(parent.context))
+            }
+            VIEW_RETRY -> {
+                val retryFooter = itemsList[itemsList.size - 1] as RetryFooter
+                val view = LayoutInflater.from(parent.context)
+                        .inflate(retryFooter.retryLayoutId, parent, false)
+                RetryHolder(view, retryFooter.retryActionTriggerViewId)
+            }
+            VIEW_HEADER -> {
+                onCreateCustomHeaderViewHolder(parent, viewType)
+            }
+
+            VIEW_EMPTY -> {
+                val customView = itemsList[itemsList.size - 1] as EmptyView
+                val view = LayoutInflater.from(parent.context)
+                        .inflate(customView.customLayoutId, parent, false)
+                EmptyViewHolder(view)
+            }
+            VIEW_LIST_END -> {
+                val customView = itemsList[itemsList.size - 1] as ListEndView
+                val view = LayoutInflater.from(parent.context)
+                        .inflate(customView.customLayoutId, parent, false)
+                ListEndHolder(view)
+            }
+            else -> {
+                onCreateCustomViewHolder(parent, viewType)
+            }
         }
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         val viewType = getItemViewType(position)
-        if (viewType == VIEW_LOADING) {
-            (holder as ProgressHolder).progressBar.isIndeterminate = true
-        } else if (viewType == VIEW_RETRY) {
-            val footer = itemsList[position] as RetryFooter
-            (holder as RetryHolder).setOnRetryListener(footer.onRetryListener)
-        } else if (viewType == VIEW_HEADER) {
-            onBindCustomHeaderViewHolder(holder, position)
-        } else if (viewType == VIEW_EMPTY) {
-            Log.d(TAG, "onBindViewHolder: Skipping View Binding of EmptyView Item")
-        } else if (viewType == VIEW_LIST_END) {
-            Log.d(TAG, "onBindViewHolder: Skipping View Binding of ListEndView Item")
-        } else {
-            onBindCustomViewHolder(holder, position)
+        when (viewType) {
+            VIEW_LOADING -> {
+                (holder as ProgressHolder).progressBar.isIndeterminate = true
+            }
+            VIEW_RETRY -> {
+                val footer = itemsList[position] as RetryFooter
+                (holder as RetryHolder).setOnRetryListener(footer.onRetryListener)
+            }
+            VIEW_HEADER -> {
+                onBindCustomHeaderViewHolder(holder, position)
+            }
+            VIEW_EMPTY -> {
+                Log.d(TAG, "onBindViewHolder: Skipping View Binding of EmptyView Item")
+            }
+            VIEW_LIST_END -> {
+                Log.d(TAG, "onBindViewHolder: Skipping View Binding of ListEndView Item")
+            }
+            else -> {
+                onBindCustomViewHolder(holder, position)
+            }
         }
     }
 
@@ -153,7 +170,7 @@ abstract class BaseAdapter :
      * Removes the last item if it is either ProgressFooter or RetryFooter
      */
     fun clearFooter() {
-        if (itemsList != null && !itemsList.isEmpty()) {
+        if (itemsList != null && itemsList.isNotEmpty()) {
             val pageable: Pageable = itemsList[itemsList.size - 1]
             if (pageable is RetryFooter || pageable is ProgressFooter || pageable is EmptyView) {
                 itemsList.removeAt(itemsList.size - 1)
@@ -317,6 +334,9 @@ abstract class BaseAdapter :
 //        return itemsList
 //    }
 
+    fun dummyHeader(context: Context?) : RecyclerView.ViewHolder {
+        return DummyHeaderViewHolder(prepareEmptyDummyHeaderView(context))
+    }
     private fun prepareLoadingView(context: Context): View {
         val relativeLayout = RelativeLayout(context)
         val relativeLayoutParams = RelativeLayout.LayoutParams(
@@ -335,6 +355,16 @@ abstract class BaseAdapter :
         )
         params.addRule(RelativeLayout.CENTER_IN_PARENT)
         progressBar.layoutParams = params
+        return relativeLayout
+    }
+
+    private fun prepareEmptyDummyHeaderView(context: Context?): View {
+        val relativeLayout = RelativeLayout(context)
+        val relativeLayoutParams = RelativeLayout.LayoutParams(
+                RelativeLayout.LayoutParams.MATCH_PARENT,
+                RelativeLayout.LayoutParams.WRAP_CONTENT
+        )
+        relativeLayout.layoutParams = relativeLayoutParams
         return relativeLayout
     }
 
@@ -371,13 +401,15 @@ abstract class BaseAdapter :
         val onRetryListener: OnRetryListener?,
         @field:LayoutRes @param:LayoutRes val retryLayoutId: Int,
         @field:IdRes @param:IdRes val retryActionTriggerViewId: Int
-    ) :
-        Pageable
+    ) : Pageable
 
     class RecyclerHeader<T>(val headerData: T) : Pageable
 
     /*------------------------------------View Holders (Progress Holder and Retry Holder)------------------------------------*/
-    private inner class ProgressHolder internal constructor(itemView: View) :
+
+    private inner class DummyHeaderViewHolder(@NonNull itemView: View) : RecyclerView.ViewHolder(itemView)
+
+        private inner class ProgressHolder internal constructor(itemView: View) :
         RecyclerView.ViewHolder(itemView) {
         var progressBar: ProgressBar
 
