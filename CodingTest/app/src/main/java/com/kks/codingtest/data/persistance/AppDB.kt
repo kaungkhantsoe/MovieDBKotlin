@@ -2,15 +2,15 @@ package com.kks.codingtest.data.persistance
 
 import androidx.room.Database
 import androidx.room.RoomDatabase
-import com.kks.codingtest.data.models.Result
+import com.kks.codingtest.data.models.ResultModel
 
 /**
  * Created by kaungkhantsoe on 1/4/21.
  **/
 @Database(
-    entities = [Result::class],
+    entities = [ResultModel::class],
     exportSchema = false,
-    version = 7
+    version = 9
 )
 //@TypeConverters(ListOfLongTypeConverter::class)
 abstract class AppDB : RoomDatabase() {

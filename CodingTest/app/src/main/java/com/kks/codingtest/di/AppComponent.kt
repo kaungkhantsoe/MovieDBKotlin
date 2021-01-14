@@ -2,8 +2,6 @@ package com.kks.codingtest.di
 
 import android.app.Application
 import com.kks.codingtest.BaseApp
-import com.kks.codingtest.di.modules.RoomModule
-import dagger.Binds
 import dagger.BindsInstance
 import dagger.Component
 import dagger.android.AndroidInjector

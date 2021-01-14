@@ -35,7 +35,7 @@
                android:layout_width="match_parent"
                android:layout_height="100dp"/>
 
-           <TextView
+           <com.kks.codingtest.custom_control.MyanTextView
                android:id="@+id/titleTv"
                android:textSize="@dimen/margin_xlarge"
                android:textColor="@color/colorWhite"
@@ -45,7 +45,7 @@
                android:layout_height="wrap_content"/>
        </androidx.constraintlayout.widget.ConstraintLayout>
 
-        <TextView
+        <com.kks.codingtest.custom_control.MyanTextView
             android:id="@+id/descriptionTv"
             android:layout_marginTop="@dimen/margin_normal"
             android:textColor="@color/colorBlack"

@@ -4,14 +4,14 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
-import android.widget.TextView
 import androidx.annotation.NonNull
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.RequestManager
 import com.kks.codingtest.R
 import com.kks.codingtest.common.BaseAdapter
-import com.kks.codingtest.data.models.Result
-import com.kks.codingtest.util.BASE_IMG_URL
+import com.kks.codingtest.custom_control.MyanTextView
+import com.kks.codingtest.data.models.ResultModel
+import com.kks.codingtest.util.AppConstants.BASE_IMG_URL
 import timber.log.Timber
 
 /**
@@ -32,7 +32,7 @@ class MainAdapter(
 
     override fun onBindCustomViewHolder(holder: RecyclerView.ViewHolder?, position: Int) {
         (holder as ChildViewHolder).bindPost(
-            itemsList[position] as Result
+            itemsList[position] as ResultModel
         )
     }
 
@@ -46,21 +46,16 @@ class MainAdapter(
     override fun onBindCustomHeaderViewHolder(holder: RecyclerView.ViewHolder?, position: Int) {
     }
 
-    inner class HeaderViewHolder(@NonNull itemView: View) : RecyclerView.ViewHolder(itemView) {
-
-    }
-
     inner class ChildViewHolder(@NonNull itemView: View) : RecyclerView.ViewHolder(itemView) {
 
         private val imageView: ImageView = itemView.findViewById(R.id.imageView)
-        private val title: TextView = itemView.findViewById(R.id.titleTv)
+        private val title: MyanTextView = itemView.findViewById(R.id.titleTv)
 
-        fun bindPost(model: Result) {
+        fun bindPost(model: ResultModel) {
             Timber.d("Link " + BASE_IMG_URL + model.posterPath)
             requestManager.load(BASE_IMG_URL + model.posterPath)
                 .into(imageView)
-            title.text = model.title
-
+            title.setMyanmarText(model.title)
             itemView.setOnClickListener {
                 mainListener.onClickMovie(model)
             }

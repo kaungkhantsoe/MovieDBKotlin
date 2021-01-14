@@ -35,7 +35,7 @@ JNIEXPORT jstring
 //}
 
 JNICALL
-Java_com_kks_codingtest_ui_main_MainActivity_getApiKey( //path cannot have "_" in names
+Java_com_kks_codingtest_util_SharedKeys_getApiKey( //path cannot have "_" in names
         JNIEnv *env,
         jobject /* this */) {
     std::string app_secret = "Null";

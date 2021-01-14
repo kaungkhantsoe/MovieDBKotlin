@@ -1,4 +1,4 @@
-package com.kks.codingtest.di.modules
+package com.kks.codingtest.di.main
 
 import androidx.lifecycle.ViewModel
 import com.kks.codingtest.di.ViewModelKey

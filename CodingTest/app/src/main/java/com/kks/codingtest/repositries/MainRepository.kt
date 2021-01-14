@@ -1,18 +1,22 @@
 package com.kks.codingtest.repositries
 
 import androidx.lifecycle.MutableLiveData
-import androidx.room.FtsOptions.Order
 import com.kks.codingtest.common.DataState
 import com.kks.codingtest.data.api.MovieListApi
 import com.kks.codingtest.data.models.MovieListModel
-import com.kks.codingtest.data.models.Result
+import com.kks.codingtest.data.models.ResultModel
 import com.kks.codingtest.data.persistance.AppDB
 import io.reactivex.Flowable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 import io.reactivex.subscribers.DisposableSubscriber
+import kotlinx.coroutines.*
+import kotlinx.coroutines.Dispatchers.IO
+import kotlinx.coroutines.flow.*
 import timber.log.Timber
+import java.lang.Exception
+import java.lang.Runnable
 import java.util.*
 import java.util.concurrent.Executor
 import java.util.concurrent.Executors
@@ -29,9 +33,9 @@ constructor(
     val appDB: AppDB
 ) {
 
-    private val _liveData by lazy { MutableLiveData<DataState<List<Result>>>() }
-    
-    val liveData: MutableLiveData<DataState<List<Result>>>
+    private val _liveData by lazy { MutableLiveData<DataState<List<ResultModel>>>() }
+
+    val liveData: MutableLiveData<DataState<List<ResultModel>>>
         get() = _liveData
 
     var apiKey = ""
@@ -40,7 +44,7 @@ constructor(
     private fun insertData(): Disposable {
         return movieListApi.getMovieList(apiKey, page)
             .flatMap {
-                val tempList = mutableListOf<Result>()
+                val tempList = mutableListOf<ResultModel>()
                 for (model in it.results) {
                     model.pageNumber = page
                     tempList.add(model)
@@ -76,7 +80,7 @@ constructor(
 
             override fun onError(t: Throwable?) {
                 if (t != null)
-                    _liveData.postValue(DataState.Error(t.localizedMessage))
+                    _liveData.postValue(DataState.Error(t))
                 Timber.e(t)
             }
 
@@ -102,16 +106,14 @@ constructor(
                 },
                 {
                     if (it.localizedMessage != null)
-                        _liveData.postValue(DataState.Error(it.localizedMessage!!))
+                        _liveData.postValue(DataState.Error(it))
                 }
             )
     }
 
     fun fetchDataFromDatabase(apiKey: String, page: Int): Disposable {
-
         this.apiKey = apiKey
         this.page = page
         return getMoviesFromDb()
     }
-
 }

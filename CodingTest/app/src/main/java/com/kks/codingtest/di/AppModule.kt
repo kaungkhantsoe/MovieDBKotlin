@@ -13,15 +13,16 @@ import com.kks.codingtest.R
 import com.kks.codingtest.data.api.MovieListApi
 import com.kks.codingtest.data.persistance.AppDB
 import com.kks.codingtest.repositries.MainRepository
-import com.kks.codingtest.util.BASE_URL
-import com.kks.codingtest.util.DB_NAME
+import com.kks.codingtest.util.AppConstants.BASE_URL
+import com.kks.codingtest.util.AppConstants.DB_NAME
+import com.kks.codingtest.util.SharedKeys
 import dagger.Module
 import dagger.Provides
+import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.Json
 import okhttp3.MediaType.Companion.toMediaType
 import retrofit2.Retrofit
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
-import retrofit2.converter.gson.GsonConverterFactory
 import javax.inject.Singleton
 
 /**
@@ -40,18 +41,30 @@ class AppModule {
             .build()
     }
 
+    @ExperimentalSerializationApi
     @Singleton
     @Provides
     fun provideRetrofitInstance(): Retrofit {
 
-        val gson = GsonBuilder()
-            .setLenient()
-            .create()
+        val contentType = "application/json".toMediaType()
         return Retrofit.Builder()
             .baseUrl(BASE_URL)
             .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
-            .addConverterFactory(GsonConverterFactory.create(gson))
+            .addConverterFactory(
+                Json {
+                    ignoreUnknownKeys = true
+                }.asConverterFactory(contentType)
+            )
             .build()
+
+//        val gson = GsonBuilder()
+//            .setLenient()
+//            .create()
+//        return Retrofit.Builder()
+//            .baseUrl(BASE_URL)
+//            .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
+//            .addConverterFactory(GsonConverterFactory.create(gson))
+//            .build()
     }
 
     @Singleton
@@ -77,4 +90,7 @@ class AppModule {
     @Provides
     fun provideApi(retrofit: Retrofit): MovieListApi = retrofit.create(MovieListApi::class.java)
 
+    @Singleton
+    @Provides
+    fun provideSharedKeys() = SharedKeys()
 }

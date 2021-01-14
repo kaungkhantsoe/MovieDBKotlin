@@ -1,4 +1,4 @@
-package com.kks.codingtest.ui.main
+package com.kks.codingtest.ui.main_coroutine
 
 import android.os.Bundle
 import android.view.View
@@ -14,6 +14,9 @@ import com.kks.codingtest.common.BaseActivity
 import com.kks.codingtest.common.DataState
 import com.kks.codingtest.data.models.ResultModel
 import com.kks.codingtest.ui.detail.DetailActivity
+import com.kks.codingtest.ui.main.MainAdapter
+import com.kks.codingtest.ui.main.MainListener
+import com.kks.codingtest.ui.main.MainViewModel
 import com.kks.codingtest.util.SharedKeys
 import com.kks.codingtest.util.SmartScrollListener
 import kotlinx.android.synthetic.main.activity_main.*
@@ -21,9 +24,9 @@ import timber.log.Timber
 import javax.inject.Inject
 
 /**
- * Created by kaungkhantsoe on 1/4/21.
+ * Created by kaungkhantsoe on 1/13/21.
  **/
-class MainActivity :
+class MainCoroutineActivity :
     BaseActivity(R.layout.activity_main),
     SwipeRefreshLayout.OnRefreshListener,
     SmartScrollListener.OnSmartScrollListener,
@@ -38,7 +41,7 @@ class MainActivity :
     @Inject
     lateinit var sharedKeys: SharedKeys
 
-    private val viewModel: MainViewModel by viewModels {
+    private val viewModel: MainCoroutineViewModel by viewModels {
         viewModelFactory
     }
 
@@ -47,7 +50,7 @@ class MainActivity :
     override fun setUpContents(savedInstanceState: Bundle?) {
 
         setupToolbar(true)
-        setupToolbarText("Using Rx")
+        setupToolbarText("Using Coroutine")
 
         viewModel.apiKey = sharedKeys.getApiKey().toString()
 
@@ -58,10 +61,8 @@ class MainActivity :
         observeData()
 
         if (viewModel.page == 0) {
-            viewModel.getData(1)
+            viewModel.getMovieListFrom(1)
         }
-
-
     }
 
     fun setupRecycler() {
@@ -69,9 +70,9 @@ class MainActivity :
 
         recyclerView.setHasFixedSize(true)
         recyclerView.layoutManager =
-            LinearLayoutManager(this@MainActivity, LinearLayoutManager.VERTICAL, false)
+            LinearLayoutManager(this@MainCoroutineActivity, LinearLayoutManager.VERTICAL, false)
         recyclerView.adapter = this.adapter
-        recyclerView.addOnScrollListener(SmartScrollListener(this@MainActivity))
+        recyclerView.addOnScrollListener(SmartScrollListener(this@MainCoroutineActivity))
     }
 
     private fun observeData() {
@@ -89,7 +90,11 @@ class MainActivity :
                     swipeRefresh.isRefreshing = false
                     displayProgressBar(false)
                     Timber.e(dataState.exception)
-                    Toast.makeText(this@MainActivity, dataState.exception.localizedMessage, Toast.LENGTH_LONG).show()
+                    Toast.makeText(
+                        this@MainCoroutineActivity,
+                        dataState.exception.localizedMessage,
+                        Toast.LENGTH_LONG
+                    ).show()
                 }
                 is DataState.Loading -> {
                     displayProgressBar(true)
@@ -104,15 +109,15 @@ class MainActivity :
 
     override fun onRefresh() {
         adapter.clear()
-        viewModel.getData(1)
+        viewModel.getMovieListFrom(1)
     }
 
     override fun onListEndReach() {
-        viewModel.getData(viewModel.page + 1)
+        viewModel.getMovieListFrom(viewModel.page + 1)
     }
 
     override fun onClickMovie(resultModel: ResultModel) {
-        DetailActivity.start(this@MainActivity, resultModel)
+        DetailActivity.start(this@MainCoroutineActivity, resultModel)
     }
 
 }

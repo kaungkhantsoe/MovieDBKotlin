@@ -1,6 +1,7 @@
 package com.kks.codingtest
 
 import android.content.Context
+import com.kks.codingtest.custom_control.AndroidCommonSetup
 import com.kks.codingtest.di.DaggerAppComponent
 import com.kks.codingtest.util.ReleaseTree
 import dagger.android.DaggerApplication
@@ -17,6 +18,8 @@ class BaseApp : DaggerApplication() {
 
     override fun onCreate() {
         super.onCreate()
+
+        AndroidCommonSetup.getInstance().init(applicationContext)
 
         if (BuildConfig.DEBUG) {
             Timber.plant(object : Timber.DebugTree() {
